@@ -125,4 +125,6 @@ agentshell/
 
 ## License
 
-MIT
+GNU Affero General Public License v3.0 (AGPL-3.0)
+
+This ensures that if anyone runs AgentShell as a network service, they must share their modifications with users. See [LICENSE](LICENSE) for full terms.
