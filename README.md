@@ -1,98 +1,225 @@
 # AgentShell
 
-🤖 AI-powered system interface: natural language → bash scripts → sandboxed execution. GPU-accelerated with Ollama.
+**Talk to your computer. It listens.**
 
-## Features
-
-- **GPU-Accelerated**: Uses Ollama with NVIDIA GPU support for fast inference
-- **Secure by Design**: Sandboxes mutating commands in disposable LXD containers
-- **Context-Aware**: Remembers recent interactions and current working directory
-- **Interactive Approval**: Shows generated scripts before execution
-- **Zsh Integration**: `ash` alias and Ctrl+A keybinding
-
-## Prerequisites
-
-- Ubuntu 22.04+ with NVIDIA GPU
-- Docker with nvidia-docker support
-- Python 3.10+
-- Zsh (optional, for shell integration)
-
-## Installation
+Stop memorizing commands. Stop googling syntax. Just say what you want.
 
 ```bash
-cd ai-ui
-chmod +x zsh_setup.sh
-./zsh_setup.sh
-source ~/.zshrc
+ash "find all docker containers using more than 2GB of memory"
 ```
 
-This will:
-1. Install the `agentshell` Python package
-2. Configure Zsh aliases and keybindings
+AgentShell turns natural language into bash scripts, shows you what it's about to do, then executes it safely—either on your machine or in a disposable sandbox.
 
-## Usage
+---
 
-### Basic Usage
+## Why This Exists
+
+You shouldn't need to remember that `docker stats --format "table {{.Container}}\t{{.MemUsage}}"` exists. You shouldn't need to context-switch to Stack Overflow every time you need a one-liner. Your computer should understand intent, not just syntax.
+
+AgentShell is built on a simple belief: **powerful tools should be accessible, transparent, and owned by the people who use them**—not locked behind proprietary APIs or cloud services that disappear when you stop paying.
+
+---
+
+## Quick Start
 
 ```bash
-# Interactive mode (asks for approval)
-agentshell "list all running docker containers"
+# Install
+pipx install git+https://github.com/FarrOut/AgentShell.git
 
-# Short alias
-ash "show disk usage" --run-host
-
-# Run in isolated container
-ash "install nginx and start it" --run-container
-
-# Use different model
-ash "analyze system logs" --model mistral
+# Use
+ash "list all files modified in the last hour"
+ash "check nginx logs for 500 errors" --run-container
 ```
 
-### With Zsh Integration
+That's it. No API keys. No cloud accounts. No tracking.
 
-Press `Ctrl+A` in Zsh to:
-1. See your last command
-2. Ask the AI about it
-3. Get an automated solution
+---
 
 ## How It Works
 
-1. **Task Input**: You describe what you want in natural language
-2. **Script Generation**: Ollama (running on GPU) generates a bash script
-3. **User Approval**: The script is shown for review
-4. **Execution**:
-   - **Host mode**: Only whitelisted safe commands (ls, cat, grep, etc.)
-   - **Container mode**: Full isolation in disposable LXD container
-5. **Context Storage**: Interaction saved to `~/.agentshell/session.json`
+1. **You describe what you want** in plain English
+2. **AI generates a bash script** (using Ollama running locally on your GPU)
+3. **You review the script** before anything runs
+4. **Execute safely**:
+   - Read-only commands run on your host
+   - Dangerous stuff runs in a disposable container that self-destructs
 
-## Security Model
+Everything runs locally. Your commands, your data, your machine.
 
-- **Never auto-executes** destructive commands
-- **Host execution** restricted to read-only whitelist
-- **Container execution** uses disposable LXD containers (destroyed after use)
-- **No credential storage** in session history
+---
 
-## Examples
+## Features
 
+### 🔒 Security First
+- Never auto-executes without your approval
+- Dangerous commands isolated in disposable LXD containers
+- Read-only operations whitelisted for host execution
+- No credentials stored in history
+
+### 🧠 Context-Aware
+- Remembers your last few interactions
+- Knows your current directory
+- Sees your shell history
+- Learns from what you've done
+
+### ⚡ GPU-Accelerated
+- Uses Ollama with NVIDIA GPU support
+- Fast inference on local hardware
+- No rate limits, no API costs
+- Works offline
+
+### 🛠️ Shell Integration
+- `ash` command available everywhere
+- Ctrl+A keybinding for quick AI assist
+- Works with your existing workflow
+
+---
+
+## Installation
+
+### Prerequisites
+- Ubuntu 22.04+ (or similar Linux)
+- Python 3.10+
+- [Ollama](https://ollama.com) installed and running
+- LXD (for sandboxing): `sudo snap install lxd && sudo lxd init --auto`
+- Optional: NVIDIA GPU for faster inference
+
+### Install with pipx
 ```bash
-# Safe read-only task (runs on host)
-ash "find all Python files modified today" --run-host
-
-# System modification (runs in container)
-ash "install htop and show process tree" --run-container
-
-# With context from previous interactions
-ash "do the same for nginx logs"
+pipx install git+https://github.com/FarrOut/AgentShell.git
 ```
+
+### Or install from source
+```bash
+git clone https://github.com/FarrOut/AgentShell.git
+cd AgentShell
+pipx install -e .
+```
+
+---
+
+## Usage Examples
+
+### Basic Tasks
+```bash
+# System inspection
+ash "show me disk usage by directory"
+ash "list all running services"
+ash "find large files in /var/log"
+
+# With specific models
+ash "analyze this error log" --model llama3.2:3b
+
+# Force container execution
+ash "install and configure nginx" --run-container
+```
+
+### Interactive Mode
+```bash
+ash "restart docker"
+# Shows generated script:
+# #!/bin/bash
+# set -e
+# sudo systemctl restart docker
+# sudo systemctl status docker
+
+# Prompts: [h]ost / [c]ontainer / [N]o
+```
+
+### Zsh Integration
+Press `Ctrl+A` after any command to ask the AI about it:
+```bash
+$ docker ps
+# Press Ctrl+A
+# Last command: docker ps
+# Ask AI: why are these containers restarting?
+```
+
+---
 
 ## Configuration
 
-- **Session history**: `~/.agentshell/session.json`
-- **Max history entries**: 10 (configurable in `session.py`)
-- **Safe commands whitelist**: Edit `SAFE_COMMANDS` in `main.py`
-- **Ollama endpoint**: Default `http://localhost:11434`
+### Session History
+Located at `~/.agentshell/session.json`
+- Stores last 10 interactions
+- Used for context in future prompts
+- No credentials or sensitive data
+
+### Safe Commands Whitelist
+Edit `SAFE_COMMANDS` in `agentshell/main.py` to customize which commands can run on host without sandboxing.
+
+### Ollama Models
+Default: `llama3`
+
+Change with `--model`:
+```bash
+ash "task" --model mistral
+ash "task" --model llama3.2:3b
+```
+
+---
+
+## Architecture
+
+```
+┌─────────────────┐
+│   Natural       │
+│   Language      │
+│   Input         │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Ollama        │
+│   (Local GPU)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Generated     │
+│   Bash Script   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   User          │
+│   Approval      │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌────────┐ ┌──────────┐
+│  Host  │ │Container │
+│  (safe)│ │(isolated)│
+└────────┘ └──────────┘
+```
+
+**Components:**
+- `main.py` - CLI interface and approval workflow
+- `ollama_client.py` - Local LLM communication (HTTP/CLI)
+- `lxd_executor.py` - Container sandboxing
+- `session.py` - Context persistence
+
+---
+
+## Philosophy
+
+AgentShell is AGPL-licensed because we believe powerful tools should remain in the commons. If someone builds a service on top of this, users deserve access to the source code.
+
+We're not interested in building a SaaS empire. We're interested in making computers more accessible to humans.
+
+If you improve AgentShell, we hope you'll share those improvements—but the license ensures you will if you're running it as a service.
+
+---
 
 ## Troubleshooting
+
+**Command not found:**
+```bash
+# Make sure pipx bin directory is in PATH
+pipx ensurepath
+source ~/.zshrc
+```
 
 **Ollama not responding:**
 ```bash
@@ -108,23 +235,33 @@ sudo usermod -aG lxd $USER
 newgrp lxd
 ```
 
-**GPU not detected:**
-```bash
-nvidia-smi  # Verify drivers
-```
+**Slow inference:**
+- Check GPU is detected: `nvidia-smi`
+- Use smaller models: `--model llama3.2:3b`
+- Ensure Ollama is using GPU (check with `ollama ps`)
 
-## Architecture
+---
 
-```
-agentshell/
-├── main.py           # CLI entry point, approval workflow
-├── ollama_client.py  # HTTP/CLI client for Ollama
-├── lxd_executor.py   # Container sandboxing
-└── session.py        # Context persistence
-```
+## Contributing
+
+Found a bug? Have an idea? PRs welcome.
+
+This is a community project. No corporate overlords, no VC funding, no growth metrics. Just people making tools better.
+
+---
 
 ## License
 
-GNU Affero General Public License v3.0 (AGPL-3.0)
+GNU Affero General Public License v3.0
 
-This ensures that if anyone runs AgentShell as a network service, they must share their modifications with users. See [LICENSE](LICENSE) for full terms.
+**What this means:**
+- ✅ Use it freely
+- ✅ Modify it however you want
+- ✅ Run it commercially
+- ⚠️ If you offer it as a network service, you must share your source code
+
+See [LICENSE](LICENSE) for full terms.
+
+---
+
+**Built with:** Python • Ollama • LXD • A belief that good tools should be free
