@@ -1,6 +1,6 @@
 # AgentShell
 
-**Your personal OODA loop for system control.**
+**Your personal OODA loop for getting things done.**
 
 Talk to your computer. It listens, learns, and keeps you safe.
 
@@ -8,7 +8,11 @@ Talk to your computer. It listens, learns, and keeps you safe.
 ash "find all docker containers using more than 2GB of memory"
 ```
 
-AgentShell turns natural language into bash scripts, analyzes the risk, recommends the safest execution mode, then runs it—learning from every interaction.
+AgentShell turns natural language into actions, analyzes the risk, recommends the safest approach, then executes—learning from every interaction.
+
+**Today:** Your intelligent system command interface  
+**Tomorrow:** Your autonomous task executor  
+**Always:** Local, private, and yours
 
 ---
 
@@ -78,6 +82,70 @@ ash "check nginx logs for 500 errors" --run-container
 ```
 
 That's it. No API keys. No cloud accounts. No tracking.
+
+---
+
+## Where We Are (v0.1.0)
+
+**System Command Mastery:**
+- ✅ Natural language → bash scripts
+- ✅ Intelligent safety checking (not blind approval)
+- ✅ Self-aware risk analysis
+- ✅ Disposable sandboxes for risky operations
+- ✅ Learning from every interaction
+- ✅ GPU-accelerated, runs completely local
+
+**You're in control.** Every script is shown. Every risk is explained. Every decision is yours.
+
+---
+
+## Where We're Going
+
+### v0.2.0: Task Assistant
+```bash
+ash "help me implement issue #15"
+ash "analyze these logs and create a report"
+ash "organize my project files by type"
+```
+- Reads context (GitHub, files, system state)
+- Suggests approaches
+- You approve each step
+- Learns your preferences
+
+### v0.3.0: Semi-Autonomous Executor
+```bash
+ash "implement issue #15" --supervised
+ash "monitor system and alert on anomalies" --supervised
+```
+- Plans multi-step tasks
+- Makes coordinated changes
+- Validates results
+- Asks when uncertain
+
+### v0.4.0: Autonomous Agent
+```bash
+ash "work on documentation issues" --autonomous
+ash "optimize docker images and update configs" --autonomous
+```
+- Handles complex, multi-part tasks
+- Checks in at milestones
+- Self-corrects errors
+- You steer, ASH navigates
+
+### v0.5.0: Trusted Partner
+```bash
+ash "implement v0.2.0 milestone" --autonomous
+ash "maintain system health this week" --autonomous
+```
+- Works independently on entire projects
+- Handles coding, ops, documentation, analysis
+- Only asks when genuinely stuck
+- Trust built through consistent results
+- **Amplifies you, doesn't replace you**
+
+**The goal:** Not to make you obsolete, but to make you unstoppable.
+
+**The scope:** Whatever you need—code, ops, analysis, automation, research. Your agent, your tasks, your way.
 
 ---
 
