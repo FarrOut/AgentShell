@@ -79,6 +79,7 @@ def main():
     parser.add_argument("--model", default="llama3", help="Ollama model to use (default: llama3)")
     parser.add_argument("--no-context", action="store_true", help="Don't include session context")
     parser.add_argument("--use-http", action="store_true", help="Force HTTP API instead of CLI")
+    parser.add_argument("--timeout", type=int, default=60, help="Timeout for LLM generation in seconds (default: 60)")
     
     args = parser.parse_args()
     task = " ".join(args.task)
@@ -104,9 +105,15 @@ def main():
     
     try:
         prompt = ollama.build_prompt(task, context=context, pwd=pwd, last_cmd=last_cmd)
-        response = ollama.generate(prompt, model=args.model)
+        response = ollama.generate(prompt, model=args.model, timeout=args.timeout)
         script = extract_script(response)
         print()  # Blank line after generation
+    except KeyboardInterrupt:
+        print("\n\n👋 Goodbye!")
+        return 130  # Standard exit code for Ctrl+C
+    except TimeoutError as e:
+        print(f"\n{e}", file=sys.stderr)
+        return 1
     except Exception as e:
         print(f"\n❌ Error generating script: {e}", file=sys.stderr)
         return 1
