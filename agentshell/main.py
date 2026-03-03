@@ -204,16 +204,47 @@ def main():
     print("=" * 60)
     print()
     
+    # Analyze risk
+    print("🔍 Analyzing risk...")
+    try:
+        risk_analysis = ollama.analyze_risk(script, task, model=args.model)
+        
+        # Show risk analysis
+        risk_emoji = {
+            "LOW": "✅",
+            "MEDIUM": "⚠️",
+            "HIGH": "🚨",
+            "CRITICAL": "🔥"
+        }
+        
+        print(f"{risk_emoji.get(risk_analysis['risk'], '⚠️')} RISK: {risk_analysis['risk']}")
+        print(f"📋 {risk_analysis['does']}")
+        print(f"⚡ {risk_analysis['danger']}")
+        print(f"💡 RECOMMENDATION: {risk_analysis['recommend'].upper()}")
+        print()
+        
+    except Exception as e:
+        print(f"⚠️  Risk analysis failed: {e}")
+        print("Defaulting to safe mode (container recommended)")
+        risk_analysis = {"recommend": "container", "risk": "MEDIUM"}
+        print()
+    
     # Determine execution mode
     if args.run_host:
         exec_mode = "host"
     elif args.run_container:
         exec_mode = "container"
     else:
-        # Ask user
+        # Ask user with smart default based on risk analysis
         print("Execution options:")
-        print("  [h] Run on host (safe commands only)")
-        print("  [c] Run in container (isolated)")
+        
+        if risk_analysis.get("recommend") == "container":
+            print("  [c] Run in container (recommended)")
+            print("  [h] Run on host")
+        else:
+            print("  [h] Run on host (recommended)")
+            print("  [c] Run in container")
+        
         print("  [n] Don't run (default)")
         choice = input("\nChoice [h/c/N]: ").strip().lower()
         

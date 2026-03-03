@@ -184,3 +184,64 @@ OUTPUT REQUIREMENTS:
 Generate the script now:"""
         
         return prompt
+    
+    def analyze_risk(self, script, original_task, model="llama3"):
+        """Analyze the risk of a generated script using the LLM."""
+        
+        analysis_prompt = f"""You generated this bash script:
+
+{script}
+
+Original task: {original_task}
+
+Analyze this script for risk. Be concise and direct.
+
+1. What does it do? (one sentence)
+2. What could go wrong? (one sentence)
+3. Risk level: LOW, MEDIUM, HIGH, or CRITICAL
+4. Recommendation: host or container?
+
+Output format (exactly):
+DOES: [what it does]
+RISK: [LOW/MEDIUM/HIGH/CRITICAL]
+DANGER: [what could go wrong]
+RECOMMEND: [host/container]
+"""
+        
+        try:
+            response = self.generate(analysis_prompt, model=model, timeout=30)
+            return self._parse_risk_analysis(response)
+        except Exception as e:
+            # Fallback to safe default if analysis fails
+            return {
+                "does": "Unknown operation",
+                "risk": "MEDIUM",
+                "danger": "Unable to analyze risk",
+                "recommend": "container"
+            }
+    
+    def _parse_risk_analysis(self, response):
+        """Parse the risk analysis response."""
+        result = {
+            "does": "Unknown",
+            "risk": "MEDIUM",
+            "danger": "Unknown",
+            "recommend": "container"
+        }
+        
+        for line in response.split('\n'):
+            line = line.strip()
+            if line.startswith('DOES:'):
+                result["does"] = line.replace('DOES:', '').strip()
+            elif line.startswith('RISK:'):
+                risk = line.replace('RISK:', '').strip().upper()
+                if risk in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']:
+                    result["risk"] = risk
+            elif line.startswith('DANGER:'):
+                result["danger"] = line.replace('DANGER:', '').strip()
+            elif line.startswith('RECOMMEND:'):
+                rec = line.replace('RECOMMEND:', '').strip().lower()
+                if rec in ['host', 'container']:
+                    result["recommend"] = rec
+        
+        return result
