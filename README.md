@@ -1,14 +1,27 @@
 # AgentShell
 
-**Talk to your computer. It listens.**
+**Your personal OODA loop for system control.**
 
-Stop memorizing commands. Stop googling syntax. Just say what you want.
+Talk to your computer. It listens, learns, and keeps you safe.
 
 ```bash
 ash "find all docker containers using more than 2GB of memory"
 ```
 
-AgentShell turns natural language into bash scripts, shows you what it's about to do, then executes it safely—either on your machine or in a disposable sandbox.
+AgentShell turns natural language into bash scripts, analyzes the risk, recommends the safest execution mode, then runs it—learning from every interaction.
+
+---
+
+## The OODA Loop
+
+AgentShell implements a continuous learning cycle:
+
+**Observe** → Understand your request and system context  
+**Orient** → Generate script and analyze risk  
+**Decide** → Recommend safest approach, you approve  
+**Act** → Execute and learn from the outcome  
+
+Each interaction makes it smarter. Each decision respects your agency.
 
 ---
 
@@ -16,17 +29,23 @@ AgentShell turns natural language into bash scripts, shows you what it's about t
 
 You shouldn't need to remember that `docker stats --format "table {{.Container}}\t{{.MemUsage}}"` exists. You shouldn't need to context-switch to Stack Overflow every time you need a one-liner. Your computer should understand intent, not just syntax.
 
-AgentShell is built on a simple belief: **powerful tools should be accessible, transparent, and owned by the people who use them**—not locked behind proprietary APIs or cloud services that disappear when you stop paying.
+But more than that: **you need a tool you can trust.**
+
+Traditional AI assistants ask you to trust them blindly. "Just approve this command." "Let me run with sudo." One mistake, and your system is compromised.
+
+AgentShell is different. It's **self-aware**—it analyzes its own output for risk, explains what could go wrong, and recommends the safest approach. It's not just generating commands; it's thinking about consequences.
+
+And because it runs locally, it's **yours**. It learns your preferences, adapts to your style, becomes your trusted co-pilot—without sending your data to corporations who profit from surveillance.
 
 ### Local is Lekker
 
-**Your commands are yours.** When you ask an AI assistant to help with system tasks, that conversation reveals a lot: your infrastructure, your workflows, your problems. We believe that data should stay on your machine.
+**Your commands are yours.** When you ask an AI assistant to help with system tasks, that conversation reveals everything: your infrastructure, your workflows, your problems, your mistakes. We believe that data should stay on your machine.
 
 **No recurring costs.** If you have a GPU, you already have everything you need. No subscriptions, no API fees, no rate limits.
 
 **Works offline.** Secure environments, air-gapped networks, or just a flaky internet connection—AgentShell works regardless.
 
-**Community-owned.** AGPL licensing means this tool can't be taken private or turned into a paid service. Improvements benefit everyone.
+**Community-owned.** AGPL licensing means this tool can't be taken private or turned into a paid service. Improvements benefit everyone. Your OODA loop, not theirs.
 
 ---
 
@@ -47,40 +66,75 @@ That's it. No API keys. No cloud accounts. No tracking.
 
 ## How It Works
 
-1. **You describe what you want** in plain English
-2. **AI generates a bash script** (using Ollama running locally on your GPU)
-3. **You review the script** before anything runs
-4. **Execute safely**:
-   - Read-only commands run on your host
-   - Dangerous stuff runs in a disposable container that self-destructs
+AgentShell implements a continuous OODA loop (Observe, Orient, Decide, Act):
 
-Everything runs locally. Your commands, your data, your machine.
+### 1. **Observe**
+You describe what you want in plain English. AgentShell gathers context:
+- Your current directory
+- Recent command history
+- Past interactions
+- Available tools (Docker, Ollama, Git, etc.)
+
+### 2. **Orient**
+AI generates a bash script using local Ollama (GPU-accelerated). Then—critically—**it analyzes its own output**:
+- What does this script do?
+- What could go wrong?
+- How risky is it?
+- Should it run on host or in a container?
+
+### 3. **Decide**
+You see:
+- The generated script
+- Risk analysis and reasoning
+- Recommended execution mode
+- Clear explanation of consequences
+
+You make an informed choice.
+
+### 4. **Act**
+Execute safely:
+- **Host mode**: Read-only and safe commands run directly
+- **Container mode**: Risky operations run in disposable LXD containers that self-destruct
+
+The outcome is stored. The loop closes. AgentShell learns.
 
 ---
 
 ## Features
 
-### 🔒 Security First
-- Never auto-executes without your approval
-- Dangerous commands isolated in disposable LXD containers
-- Read-only operations whitelisted for host execution
-- No credentials stored in history
+### 🔒 Self-Aware Safety
+- AI analyzes its own output for risk
+- Explains what could go wrong
+- Recommends safest execution mode
+- Intelligent command safety checker (not just blind approval)
 
-### 🧠 Context-Aware
-- Remembers your last few interactions
-- Knows your current directory
-- Sees your shell history
-- Learns from what you've done
+### 🧠 Continuous Learning
+- Remembers your last interactions
+- Learns from successes and failures
+- Adapts to your preferences over time
+- Gets smarter with every command
 
-### ⚡ GPU-Accelerated
+### ⚡ GPU-Accelerated & Local
 - Uses Ollama with NVIDIA GPU support
-- Fast inference on local hardware
+- Fast inference on your hardware
 - No rate limits, no API costs
-- Works offline
+- Works completely offline
+
+### 🛡️ Graduated Risk Response
+- **Safe commands**: Auto-approved for host
+- **Medium risk**: Warning + confirmation
+- **Dangerous**: Strong recommendation for container
+- **Critical**: Blocked on host, container-only
+
+### 🐳 Disposable Sandboxes
+- LXD containers for risky operations
+- Test dangerous commands safely
+- Automatic cleanup after execution
+- "Detonation chamber" for experiments
 
 ### 🛠️ Shell Integration
 - `ash` command available everywhere
-- Ctrl+A keybinding for quick AI assist
+- Ctrl+A keybinding for quick assist
 - Works with your existing workflow
 
 ---
@@ -216,9 +270,17 @@ ash "task" --model llama3.2:3b
 
 AgentShell is AGPL-licensed because we believe powerful tools should remain in the commons. If someone builds a service on top of this, users deserve access to the source code.
 
-We're not interested in building a SaaS empire. We're interested in making computers more accessible to humans.
+**We're building a personal OODA loop for system control:**
+- **Your loop**, not a corporation's
+- **Your data**, not their training set
+- **Your trust**, earned through transparency
+- **Your agency**, respected at every step
+
+This isn't about building a SaaS empire. It's about giving people tools they can trust—tools that get smarter without exploiting them, tools that respect sovereignty over convenience.
 
 If you improve AgentShell, we hope you'll share those improvements—but the license ensures you will if you're running it as a service.
+
+**Digital sovereignty through intelligent assistance.**
 
 ---
 
