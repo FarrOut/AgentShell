@@ -137,28 +137,43 @@ class OllamaClient:
     
     def build_prompt(self, task, context=None, pwd=None, last_cmd=None):
         """Build a structured prompt for the LLM."""
-        prompt = f"""You are a Linux system assistant. Generate a bash script to accomplish this task:
-
-TASK: {task}
-"""
         
-        if pwd:
-            prompt += f"\nCURRENT DIRECTORY: {pwd}"
+        # System context - teach the LLM about available tools
+        system_info = """You are a Linux system assistant generating bash scripts.
+
+AVAILABLE TOOLS:
+- Ollama: ollama list, ollama ps, ollama run, ollama pull
+- Docker: docker ps, docker logs, docker stats, docker exec
+- Git: git status, git log, git diff, git branch
+- System: systemctl, journalctl, ps, top, htop, free, df, du
+- Files: ls, find, grep, cat, tail, head, less, wc
+- Network: curl, wget, ping, netstat, ss
+- Package: apt, snap, pip, npm
+
+ENVIRONMENT:
+- OS: Ubuntu/Linux
+- Shell: bash
+- User: standard user (use sudo for system changes)
+- Current directory: {pwd}
+
+""".format(pwd=pwd or "unknown")
+        
+        prompt = system_info + f"TASK: {task}\n"
         
         if last_cmd:
-            prompt += f"\nLAST COMMAND: {last_cmd}"
+            prompt += f"\nLAST COMMAND EXECUTED: {last_cmd}\n"
         
         if context:
-            prompt += f"\n\nPREVIOUS CONTEXT:\n{context}"
+            prompt += f"\nPREVIOUS INTERACTIONS:\n{context}\n"
         
         prompt += """
-
-REQUIREMENTS:
+OUTPUT REQUIREMENTS:
 1. Output ONLY valid bash script code
 2. Start with #!/bin/bash
 3. Include error handling (set -e)
 4. Add brief comments for each step
-5. No explanatory text outside the script
+5. Use the appropriate tool from the AVAILABLE TOOLS list
+6. No explanatory text outside the script
 
 Generate the script now:"""
         

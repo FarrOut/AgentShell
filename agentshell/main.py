@@ -29,7 +29,7 @@ from .session import Session
 SAFE_COMMANDS = {
     'ls', 'cat', 'grep', 'find', 'head', 'tail', 'wc', 'echo', 'pwd',
     'whoami', 'date', 'df', 'du', 'ps', 'top', 'free', 'uname',
-    'journalctl', 'docker', 'git', 'CURRENT_DIR=$(pwd)'
+    'journalctl', 'docker', 'git', 'ollama', 'CURRENT_DIR=$(pwd)'
 }
 
 def get_last_command():
