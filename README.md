@@ -212,6 +212,66 @@ If you improve AgentShell, we hope you'll share those improvements—but the lic
 
 ---
 
+## Ollama Model Selection for RTX 4060 Laptop (8GB VRAM)
+
+**Hardware Benchmark**: NVIDIA RTX 4060 Max-Q (8GB VRAM), Intel i7-13700HX (24 threads), 32GB RAM
+
+### Recommended Model Stack
+
+**Tier 1: Daily Driver**
+qwen2.5:14b-instruct-q4_K_M # ~7.5GB VRAM - 90% of tasks (coding/sysadmin/reasoning)
+
+**Tier 2: Category Specialists**
+
+deepseek-r1:7b-q4_K_M # 🧠 Thinking (complex logic) ~4GB
+
+llava:7b-q4_K_M # 👁️ Vision (image analysis) ~4.5GB
+
+nomic-embed-text:1.5b # 📊 Embedding (RAG/search) ~1GB
+
+
+### Model Categories Explained
+
+| Category | Purpose | Example Use Case |
+|----------|---------|------------------|
+| 🧠 Thinking | Advanced reasoning, math, planning | "Step-by-step analyze security breach patterns" |
+| 👁️ Vision | Image analysis, OCR, screenshot debugging | "What's unusual in this forensic screenshot?" |
+| 🔧 Tools | Function calling, structured JSON output | Docker automation scripts |
+| 📊 Embedding | Vector search, document clustering | Local bash script semantic search |
+
+### When to Switch Models (Decision Tree)
+┌─ Start with: qwen2.5:14b (handles 90%)
+├─ Images/screenshots? → llava:7b
+├─ Complex logic puzzles? → deepseek-r1:7b
+├─ Document search? → nomic-embed-text
+└─ Response garbage? → Check nvidia-smi → smaller quantization
+
+
+**Hardware Feedback** (run `watch nvidia-smi`):
+
+✅ 80-95% GPU util, <10s response → STAY
+
+⚠️ 95-100% VRAM, slow tokens → smaller model
+
+💥 OOM/crash → q4_0 → q4_K_S quantization
+
+
+### Quick Commands
+```bash
+# Default (add to ~/.bashrc)
+alias ollama="ollama run qwen2.5:14b-instruct-q4_K_M"
+
+# Check loaded models
+ollama ps
+
+# Test specialist
+ollama run llava:7b "/path/to/image.png Describe issues"
+```
+
+Total: ~16GB disk, never exceeds 8GB VRAM simultaneously. Qwen2.5 14B maximizes RTX 4060 capability for sysadmin/AI work.
+
+---
+
 ## Troubleshooting
 
 **Command not found:**
