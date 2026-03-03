@@ -14,14 +14,31 @@ AgentShell turns natural language into bash scripts, analyzes the risk, recommen
 
 ## The OODA Loop
 
-AgentShell implements a continuous learning cycle:
+AgentShell implements a continuous learning cycle at two levels:
 
+### Tactical OODA (Current Task)
 **Observe** → Understand your request and system context  
 **Orient** → Generate script and analyze risk  
 **Decide** → Recommend safest approach, you approve  
 **Act** → Execute and learn from the outcome  
 
-Each interaction makes it smarter. Each decision respects your agency.
+### Strategic OODA (Long-term Goals)
+**Observe** → Read roadmap, understand future capabilities needed  
+**Orient** → Evaluate current task against strategic goals  
+**Decide** → Identify transferable patterns and skills  
+**Act** → Store learnings that prepare for next milestone  
+
+Each interaction makes it smarter **tactically** (better at current tasks) and **strategically** (prepared for future capabilities).
+
+**Example:**
+```
+Task: "find all Python files"
+
+Tactical learning: "find command works for file discovery"
+Strategic learning: "This prepares me for v0.2.0 code file operations"
+```
+
+This is **goal-directed learning**—not just learning from everything, but learning toward something.
 
 ---
 
