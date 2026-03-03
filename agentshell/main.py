@@ -29,8 +29,87 @@ from .session import Session
 SAFE_COMMANDS = {
     'ls', 'cat', 'grep', 'find', 'head', 'tail', 'wc', 'echo', 'pwd',
     'whoami', 'date', 'df', 'du', 'ps', 'top', 'free', 'uname',
-    'journalctl', 'docker', 'git', 'ollama', 'CURRENT_DIR=$(pwd)'
+    'journalctl', 'docker', 'git', 'ollama', 'curl', 'wget', 'ping',
+    'systemctl', 'which', 'type', 'file', 'stat', 'less', 'more'
 }
+
+# Dangerous commands that should never run on host
+DANGEROUS_COMMANDS = {
+    'rm', 'dd', 'mkfs', 'fdisk', 'parted', 'shutdown', 'reboot', 'init',
+    'kill', 'killall', 'pkill', 'chmod', 'chown', 'useradd', 'userdel',
+    'passwd', 'su', 'sudo', 'apt', 'apt-get', 'dpkg', 'snap', 'systemctl start',
+    'systemctl stop', 'systemctl restart', 'systemctl enable', 'systemctl disable',
+    'mv', 'cp', '>', '>>', 'tee', 'truncate', 'shred'
+}
+
+def is_script_safe(script):
+    """Check if a bash script is safe to run on host."""
+    import re
+    
+    lines = script.split('\n')
+    
+    for line in lines:
+        line = line.strip()
+        
+        # Skip empty lines and comments
+        if not line or line.startswith('#'):
+            continue
+        
+        # Skip bash built-ins that are safe
+        if line.startswith(('set ', 'export ', 'local ')):
+            continue
+        
+        # Skip control flow keywords
+        if line in ('then', 'else', 'elif', 'fi', 'do', 'done', 'esac'):
+            continue
+        
+        # Check for dangerous commands anywhere in the line
+        for dangerous in DANGEROUS_COMMANDS:
+            if re.search(r'\b' + re.escape(dangerous) + r'\b', line):
+                return False, f"Dangerous command '{dangerous}' detected"
+        
+        # Extract commands from command substitutions: $(command) or `command`
+        cmd_subs = re.findall(r'\$\(([^)]+)\)|`([^`]+)`', line)
+        for sub in cmd_subs:
+            cmd_str = sub[0] or sub[1]  # Get whichever matched
+            cmd = cmd_str.strip().split()[0] if cmd_str.strip() else ""
+            if cmd and cmd not in SAFE_COMMANDS:
+                return False, f"Unsafe command '{cmd}' in command substitution"
+        
+        # Handle pipes: command1 | command2
+        if '|' in line:
+            # Remove command substitutions first to avoid false positives
+            line_no_subs = re.sub(r'\$\([^)]+\)', '', line)
+            parts = line_no_subs.split('|')
+            for part in parts:
+                words = part.strip().split()
+                if words:
+                    cmd = words[0]
+                    if cmd and cmd not in SAFE_COMMANDS and not cmd.startswith('$'):
+                        return False, f"Unsafe command '{cmd}' in pipe"
+        
+        # Handle variable assignments: VAR=value or VAR=$(cmd)
+        if '=' in line and not line.startswith(('if ', 'while ', 'for ', '[')):
+            # Already checked command substitutions above
+            continue
+        
+        # Handle if/while/for statements
+        if line.startswith(('if ', 'while ', 'for ', '[ ', '[[ ')):
+            # These are control structures, check commands inside them
+            continue
+        
+        # Check the first word of the line (the actual command)
+        words = line.split()
+        if words:
+            cmd = words[0]
+            # Skip bash syntax
+            if cmd in ('if', 'then', 'else', 'elif', 'fi', 'while', 'for', 'do', 'done', 'case', 'esac', '[', '[[', 'test'):
+                continue
+            # Check if command is safe
+            if cmd not in SAFE_COMMANDS and not cmd.startswith('$'):
+                return False, f"Unsafe command '{cmd}' not in whitelist"
+    
+    return True, "Script is safe"
 
 def get_last_command():
     """Get last command from shell history."""
@@ -152,7 +231,7 @@ def main():
     try:
         if exec_mode == "host":
             print("🏠 Executing on host (safe mode)...")
-            result = executor.execute_on_host(script, SAFE_COMMANDS)
+            result = executor.execute_on_host(script)
         else:
             print("🐳 Spinning up container...")
             result = executor.execute_in_container(script)

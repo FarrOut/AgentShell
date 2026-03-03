@@ -78,17 +78,13 @@ class LXDExecutor:
                 capture_output=True
             )
     
-    def execute_on_host(self, script, safe_commands):
-        """Execute script on host (only if all commands are whitelisted)."""
-        lines = [l.strip() for l in script.split('\n') if l.strip() and not l.strip().startswith('#')]
+    def execute_on_host(self, script):
+        """Execute script on host (only if all commands are safe)."""
+        from agentshell.main import is_script_safe
         
-        for line in lines:
-            if line.startswith('set '):
-                continue
-            
-            cmd = line.split()[0] if line.split() else ""
-            if cmd not in safe_commands:
-                raise RuntimeError(f"Unsafe command '{cmd}' not in whitelist. Use --run-container instead.")
+        safe, message = is_script_safe(script)
+        if not safe:
+            raise RuntimeError(f"{message}. Use --run-container instead.")
         
         result = subprocess.run(
             ["bash", "-c", script],

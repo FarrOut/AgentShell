@@ -142,7 +142,11 @@ class OllamaClient:
         system_info = """You are a Linux system assistant generating bash scripts.
 
 AVAILABLE TOOLS:
-- Ollama: ollama list, ollama ps, ollama run, ollama pull
+- Ollama: 
+  * ollama list (show downloaded models)
+  * ollama ps (show running models)
+  * ollama run <model> (run a model)
+  * ollama pull <model> (download a model)
 - Docker: docker ps, docker logs, docker stats, docker exec
 - Git: git status, git log, git diff, git branch
 - System: systemctl, journalctl, ps, top, htop, free, df, du
@@ -171,9 +175,11 @@ OUTPUT REQUIREMENTS:
 1. Output ONLY valid bash script code
 2. Start with #!/bin/bash
 3. Include error handling (set -e)
-4. Add brief comments for each step
+4. Add brief comments ONLY when necessary
 5. Use the appropriate tool from the AVAILABLE TOOLS list
-6. No explanatory text outside the script
+6. Keep it simple - don't add unnecessary error checking
+7. No explanatory text outside the script
+8. Be direct - if the task is "list X", just run the command to list X
 
 Generate the script now:"""
         
