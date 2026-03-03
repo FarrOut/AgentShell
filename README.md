@@ -18,6 +18,16 @@ You shouldn't need to remember that `docker stats --format "table {{.Container}}
 
 AgentShell is built on a simple belief: **powerful tools should be accessible, transparent, and owned by the people who use them**—not locked behind proprietary APIs or cloud services that disappear when you stop paying.
 
+### Local is Lekker
+
+**Your commands are yours.** When you ask an AI assistant to help with system tasks, that conversation reveals a lot: your infrastructure, your workflows, your problems. We believe that data should stay on your machine.
+
+**No recurring costs.** If you have a GPU, you already have everything you need. No subscriptions, no API fees, no rate limits.
+
+**Works offline.** Secure environments, air-gapped networks, or just a flaky internet connection—AgentShell works regardless.
+
+**Community-owned.** AGPL licensing means this tool can't be taken private or turned into a paid service. Improvements benefit everyone.
+
 ---
 
 ## Quick Start
